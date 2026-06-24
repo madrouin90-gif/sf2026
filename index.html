@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌉 SF Juillet 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Lato:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kraft: #F5E6C8;
+    --kraft-dark: #E8D4A8;
+    --sepia: #C4956A;
+    --brown: #8B4513;
+    --ink: #2C1810;
+    --bay: #2B5F8E;
+    --cable: #C0392B;
+    --fog: #A8B4BE;
+    --confirm: #2E7D32;
+    --plan: #1565C0;
+    --choose: #E65100;
+    --pending: #6D4C41;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: #D4B896;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(139,69,19,0.04) 28px, rgba(139,69,19,0.04) 29px),
+      repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(139,69,19,0.03) 28px, rgba(139,69,19,0.03) 29px);
+    min-height: 100vh;
+    font-family: 'Lato', sans-serif;
+    color: var(--ink);
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--ink);
+    color: var(--kraft);
+    padding: 20px 16px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 3px solid var(--cable);
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(196,149,106,0.05) 10px, rgba(196,149,106,0.05) 11px);
+  }
+  .header-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sepia);
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-family: 'Special Elite', cursive;
+    font-size: 26px;
+    line-height: 1.2;
+    position: relative;
+  }
+  .header-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--fog);
+    margin-top: 6px;
+  }
+  .stamp-header {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 54px; height: 54px;
+    border: 2.5px solid var(--cable);
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0.7;
+    transform: rotate(12deg);
+  }
+  .stamp-header span:first-child { font-size: 8px; letter-spacing: 1px; color: var(--cable); font-family: 'Lato', sans-serif; text-transform: uppercase; }
+  .stamp-header span:last-child { font-size: 16px; }
+
+  /* SYNC STATUS */
+  .sync-bar {
+    background: var(--kraft-dark);
+    border-bottom: 1px solid rgba(139,69,19,0.2);
+    padding: 6px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--brown);
+  }
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #ccc; margin-right: 6px; display: inline-block;
+    transition: background 0.3s;
+  }
+  .sync-dot.connected { background: #4CAF50; }
+  .sync-dot.syncing { background: #FF9800; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* TABS NAV */
+  .tabs-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--ink);
+    border-top: 2px solid var(--sepia);
+    display: flex;
+    padding: 4px 0 env(safe-area-inset-bottom, 0px);
+  }
+  .tab-btn {
+    flex: 1; background: none; border: none; cursor: pointer;
+    padding: 6px 2px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--fog); font-family: 'Lato', sans-serif;
+    transition: color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-btn.active { color: var(--sepia); }
+  .tab-btn .tab-icon { font-size: 18px; line-height: 1; }
+  .tab-btn .tab-label { font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  /* CONTENT */
+  .tab-content { display: none; padding: 12px 12px 0; }
+  .tab-content.active { display: block; }
+
+  /* DAY CARDS */
+  .day-card {
+    background: var(--kraft);
+    border-radius: 2px;
+    margin-bottom: 14px;
+    box-shadow: 2px 3px 8px rgba(44,24,16,0.18), 0 1px 2px rgba(44,24,16,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .day-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+  }
+  .day-card.confirmed::after { background: var(--confirm); }
+  .day-card.planned::after { background: var(--plan); }
+  .day-card.pending::after { background: var(--pending); }
+
+  .day-header {
+    padding: 12px 14px 10px;
+    border-bottom: 1px dashed rgba(139,69,19,0.3);
+    display: flex; align-items: flex-start; justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .day-header-left { flex: 1; }
+  .day-date {
+    font-family: 'Special Elite', cursive;
+    font-size: 17px; color: var(--ink);
+    line-height: 1.2;
+  }
+  .day-subtitle {
+    font-size: 11px; color: var(--brown);
+    margin-top: 2px; letter-spacing: 0.3px;
+  }
+  .day-chevron {
+    font-size: 12px; color: var(--sepia);
+    margin-left: 8px; margin-top: 2px;
+    transition: transform 0.25s;
+  }
+  .day-card.collapsed .day-chevron { transform: rotate(-90deg); }
+
+  /* STAMP WATERMARK */
+  .day-stamp {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%) rotate(-8deg);
+    width: 52px; height: 52px;
+    border: 2px solid var(--sepia);
+    border-radius: 50%;
+    opacity: 0.12;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Special Elite', cursive;
+    font-size: 8px; letter-spacing: 1px;
+    color: var(--brown);
+    text-align: center; pointer-events: none;
+  }
+  .day-stamp-inner { line-height: 1.2; text-transform: uppercase; }
+
+  .day-body { padding: 0 14px 12px; }
+
+  /* ACTIVITY ITEMS */
+  .activity {
+    padding: 8px 0;
+    border-bottom: 1px dotted rgba(139,69,19,0.2);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .activity:last-child { border-bottom: none; }
+
+  .activity-check {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 1.5px solid var(--sepia);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; margin-top: 1px;
+    background: white;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .activity-check.checked {
+    background: var(--confirm); border-color: var(--confirm);
+    color: white; font-size: 12px;
+  }
+  .activity-check.checked::after { content: '✓'; }
+
+  .activity-body { flex: 1; }
+  .activity-time {
+    font-size: 10px; color: var(--sepia); font-weight: 700;
+    letter-spacing: 0.5px; margin-bottom: 2px;
+  }
+  .activity-title {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    line-height: 1.3;
+  }
+  .activity-title.done { text-decoration: line-through; opacity: 0.5; }
+  .activity-desc {
+    font-size: 12px; color: var(--brown); margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-block; font-size: 9px; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 1px 5px; border-radius: 2px;
+    font-weight: 700; margin-left: 5px; vertical-align: middle;
+  }
+  .badge-confirmed { background: #E8F5E9; color: var(--confirm); border: 1px solid #A5D6A7; }
+  .badge-choose { background: #FFF3E0; color: var(--choose); border: 1px solid #FFCC80; }
+  .badge-pending { background: #EFEBE9; color: var(--pending); border: 1px solid #BCAAA4; }
+  .badge-michelin { background: #FCE4EC; color: #C62828; border: 1px solid #EF9A9A; }
+
+  /* OPTIONS (toggle) */
+  .options-group { margin-top: 6px; padding: 8px 10px; background: rgba(196,149,106,0.12); border-radius: 2px; border-left: 2px solid var(--sepia); }
+  .options-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--sepia); font-weight: 700; margin-bottom: 6px; }
+  .option-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option-radio {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid var(--sepia); flex-shrink: 0;
+    background: white; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .option-radio.selected { background: var(--bay); border-color: var(--bay); }
+  .option-radio.selected::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; }
+  .option-text { font-size: 12px; color: var(--ink); line-height: 1.3; }
+  .option-text.selected { font-weight: 700; color: var(--bay); }
+
+  /* WARNING BOX */
+  .warning-box {
+    background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 2px;
+    padding: 7px 10px; margin-top: 6px;
+    font-size: 11px; color: #5D4037; line-height: 1.5;
+  }
+  .warning-box::before { content: '⚠️ '; }
+
+  /* ADD ACTIVITY */
+  .add-activity-btn {
+    width: 100%; padding: 8px; margin-top: 8px;
+    background: none; border: 1.5px dashed var(--sepia);
+    border-radius: 2px; color: var(--sepia);
+    font-family: 'Lato', sans-serif; font-size: 12px;
+    cursor: pointer; letter-spacing: 0.5px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(44,24,16,0.6); align-items: flex-end;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--kraft); width: 100%;
+    border-radius: 8px 8px 0 0;
+    padding: 20px 16px env(safe-area-inset-bottom, 16px);
+    box-shadow: 0 -4px 24px rgba(44,24,16,0.25);
+  }
+  .modal h3 {
+    font-family: 'Special Elite', cursive;
+    font-size: 16px; margin-bottom: 14px; color: var(--ink);
+  }
+  .modal input, .modal textarea, .modal select {
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid rgba(139,69,19,0.3);
+    border-radius: 2px; font-family: 'Lato', sans-serif; font-size: 14px;
+    background: white; color: var(--ink); margin-bottom: 10px;
+  }
+  .modal textarea { height: 70px; resize: none; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 4px; }
+  .btn-primary {
+    flex: 1; padding: 12px; background: var(--brown);
+    color: var(--kraft); border: none; border-radius: 2px;
+    font-family: 'Special Elite', cursive; font-size: 14px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .btn-cancel {
+    padding: 12px 20px; background: none;
+    border: 1.5px solid rgba(139,69,19,0.3); border-radius: 2px;
+    color: var(--brown); font-family: 'Lato', sans-serif; font-size: 14px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* RESERVATIONS TAB */
+  .resa-card {
+    background: var(--kraft); border-radius: 2px;
+    padding: 14px; margin-bottom: 12px;
+    box-shadow: 2px 3px 8px rgba(44,24,16,0.15);
+    border-left: 4px solid var(--confirm);
+    position: relative; overflow: hidden;
+  }
+  .resa-card::before {
+    content: '🔒';
+    position: absolute; right: 12px; top: 12px;
+    font-size: 18px; opacity: 0.15;
+  }
+  .resa-name { font-family: 'Special Elite', cursive; font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+  .resa-detail { font-size: 12px; color: var(--brown); line-height: 1.6; }
+  .resa-ref { font-size: 10px; color: var(--sepia); margin-top: 6px; font-weight: 700; letter-spacing: 0.5px; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 13px; color: var(--brown);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin: 16px 0 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(139,69,19,0.2); }
+
+  /* NOTES TAB */
+  .note-card {
+    background: var(--kraft); border-radius: 2px;
+    padding: 14px; margin-bottom: 10px;
+    box-shadow: 2px 3px 6px rgba(44,24,16,0.12);
+    position: relative;
+  }
+  .note-card .note-delete {
+    position: absolute; top: 10px; right: 10px;
+    background: none; border: none; color: var(--sepia);
+    font-size: 16px; cursor: pointer; padding: 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .note-meta { font-size: 10px; color: var(--sepia); margin-bottom: 4px; letter-spacing: 0.3px; }
+  .note-text { font-size: 13px; color: var(--ink); line-height: 1.5; }
+  .add-note-btn {
+    width: 100%; padding: 12px;
+    background: var(--brown); color: var(--kraft);
+    border: none; border-radius: 2px;
+    font-family: 'Special Elite', cursive; font-size: 14px;
+    cursor: pointer; margin-top: 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* AIRBNB CARD */
+  .airbnb-card {
+    background: var(--kraft); border-radius: 2px;
+    padding: 14px; margin-bottom: 12px;
+    box-shadow: 2px 3px 8px rgba(44,24,16,0.15);
+    border-left: 4px solid var(--bay);
+  }
+
+  /* LEGEND */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--brown); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* DELETED ITEM */
+  .activity.deleted { opacity: 0.4; }
+  .activity.deleted .activity-title { text-decoration: line-through; }
+  .delete-btn {
+    background: none; border: none; color: #ccc; font-size: 14px;
+    cursor: pointer; padding: 2px 4px; flex-shrink: 0; margin-top: 1px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .delete-btn:active { color: var(--cable); }
+
+  .collapsed .day-body { display: none; }
+
+  /* FIREBASE CONFIG BANNER */
+  .config-banner {
+    background: #FFF3E0; border: 1.5px solid #FFB74D;
+    border-radius: 4px; padding: 12px 14px; margin: 12px;
+    font-size: 12px; color: #5D4037; line-height: 1.6;
+  }
+  .config-banner strong { display: block; margin-bottom: 4px; font-size: 13px; color: #E65100; }
+  .config-banner code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<!-- FIREBASE CONFIG — à remplacer -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ⚠️ REMPLACE CES VALEURS PAR TA CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyByeyR_bSMJZ-j5AKfVn7KHhV4zRExxIWc",
+    authDomain: "sf2026-be85b.firebaseapp.com",
+    databaseURL: "https://sf2026-be85b-default-rtdb.firebaseio.com",
+    projectId: "sf2026-be85b",
+    storageBucket: "sf2026-be85b.firebasestorage.app",
+    messagingSenderId: "245510965469",
+    appId: "1:245510965469:web:85651e879b3db359607334"
+  };
+
+  const NOT_CONFIGURED = firebaseConfig.apiKey === "REPLACE_API_KEY";
+
+  let db = null;
+  if (!NOT_CONFIGURED) {
+    const app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+  }
+
+  // ===== STATE =====
+  const DEFAULT_STATE = {
+    checks: {},      // activityId -> true/false
+    options: {},     // optionGroupId -> selectedOptionIndex
+    deleted: {},     // activityId -> true
+    notes: [],       // [{id, text, author, ts}]
+    custom: {}       // dayId -> [{id, time, title, desc}]
+  };
+
+  let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  let syncStatus = 'disconnected';
+
+  function updateSyncUI(status) {
+    syncStatus = status;
+    const dot = document.getElementById('sync-dot');
+    const label = document.getElementById('sync-label');
+    if (!dot) return;
+    dot.className = 'sync-dot ' + status;
+    label.textContent = status === 'connected' ? 'Synchronisé' : status === 'syncing' ? 'Synchronisation…' : 'Non connecté (mode local)';
+  }
+
+  function saveState() {
+    if (db) {
+      updateSyncUI('syncing');
+      set(ref(db, 'sf2026/state'), state).then(() => updateSyncUI('connected')).catch(() => updateSyncUI('disconnected'));
+    }
+  }
+
+  function applyState() {
+    // Checks
+    document.querySelectorAll('.activity-check').forEach(el => {
+      const id = el.dataset.id;
+      el.classList.toggle('checked', !!state.checks[id]);
+      const title = el.closest('.activity')?.querySelector('.activity-title');
+      if (title) title.classList.toggle('done', !!state.checks[id]);
+    });
+    // Options
+    document.querySelectorAll('.option-item').forEach(el => {
+      const gid = el.dataset.group;
+      const idx = parseInt(el.dataset.idx);
+      const selected = state.options[gid] === idx;
+      el.querySelector('.option-radio').classList.toggle('selected', selected);
+      el.querySelector('.option-text').classList.toggle('selected', selected);
+    });
+    // Deleted
+    document.querySelectorAll('.activity[data-id]').forEach(el => {
+      el.classList.toggle('deleted', !!state.deleted[el.dataset.id]);
+    });
+    // Notes
+    renderNotes();
+    // Custom activities
+    renderCustomActivities();
+  }
+
+  if (db) {
+    onValue(ref(db, 'sf2026/state'), (snapshot) => {
+      const data = snapshot.val();
+      if (data) { state = { ...DEFAULT_STATE, ...data }; applyState(); }
+      updateSyncUI('connected');
+    }, () => updateSyncUI('disconnected'));
+  } else {
+    updateSyncUI('disconnected');
+  }
+
+  // ===== INTERACTIONS =====
+  document.addEventListener('click', (e) => {
+    // Check/uncheck
+    const check = e.target.closest('.activity-check');
+    if (check) {
+      const id = check.dataset.id;
+      state.checks[id] = !state.checks[id];
+      applyState(); saveState(); return;
+    }
+    // Option select
+    const optItem = e.target.closest('.option-item');
+    if (optItem) {
+      const gid = optItem.dataset.group;
+      const idx = parseInt(optItem.dataset.idx);
+      state.options[gid] = idx;
+      applyState(); saveState(); return;
+    }
+    // Delete activity
+    const delBtn = e.target.closest('.delete-btn');
+    if (delBtn) {
+      const id = delBtn.dataset.id;
+      state.deleted[id] = !state.deleted[id];
+      applyState(); saveState(); return;
+    }
+    // Day collapse
+    const dayHeader = e.target.closest('.day-header');
+    if (dayHeader && !e.target.closest('.activity-check') && !e.target.closest('.delete-btn')) {
+      dayHeader.closest('.day-card').classList.toggle('collapsed');
+      return;
+    }
+    // Tab
+    const tabBtn = e.target.closest('.tab-btn');
+    if (tabBtn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tabBtn.classList.add('active');
+      document.getElementById('tab-' + tabBtn.dataset.tab).classList.add('active');
+      return;
+    }
+    // Add activity open modal
+    const addBtn = e.target.closest('.add-activity-btn');
+    if (addBtn) {
+      document.getElementById('modal-day').value = addBtn.dataset.day;
+      document.getElementById('add-modal').classList.add('open');
+      return;
+    }
+    // Modal cancel
+    if (e.target.closest('#modal-cancel') || e.target === document.getElementById('add-modal')) {
+      document.getElementById('add-modal').classList.remove('open');
+      return;
+    }
+    // Modal save
+    if (e.target.closest('#modal-save')) {
+      const day = document.getElementById('modal-day').value;
+      const time = document.getElementById('modal-time').value;
+      const title = document.getElementById('modal-title').value.trim();
+      const desc = document.getElementById('modal-desc').value.trim();
+      if (!title) return;
+      if (!state.custom[day]) state.custom[day] = [];
+      state.custom[day].push({ id: 'c' + Date.now(), time, title, desc });
+      document.getElementById('add-modal').classList.remove('open');
+      document.getElementById('modal-time').value = '';
+      document.getElementById('modal-title').value = '';
+      document.getElementById('modal-desc').value = '';
+      applyState(); saveState(); return;
+    }
+    // Add note open
+    if (e.target.closest('#open-note-modal')) {
+      document.getElementById('note-modal').classList.add('open'); return;
+    }
+    // Note cancel
+    if (e.target.closest('#note-cancel') || e.target === document.getElementById('note-modal')) {
+      document.getElementById('note-modal').classList.remove('open'); return;
+    }
+    // Note save
+    if (e.target.closest('#note-save')) {
+      const text = document.getElementById('note-text-input').value.trim();
+      const author = document.getElementById('note-author').value.trim() || 'Anonyme';
+      if (!text) return;
+      if (!state.notes) state.notes = [];
+      state.notes.push({ id: 'n' + Date.now(), text, author, ts: Date.now() });
+      document.getElementById('note-modal').classList.remove('open');
+      document.getElementById('note-text-input').value = '';
+      applyState(); saveState(); return;
+    }
+    // Delete note
+    const noteDelBtn = e.target.closest('.note-delete');
+    if (noteDelBtn) {
+      const nid = noteDelBtn.dataset.id;
+      state.notes = (state.notes || []).filter(n => n.id !== nid);
+      applyState(); saveState(); return;
+    }
+  });
+
+  function renderNotes() {
+    const container = document.getElementById('notes-list');
+    if (!container) return;
+    const notes = state.notes || [];
+    if (notes.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--sepia);font-size:13px;padding:20px 0;">Aucune note pour l\'instant.</div>';
+      return;
+    }
+    container.innerHTML = notes.map(n => `
+      <div class="note-card">
+        <button class="note-delete" data-id="${n.id}">✕</button>
+        <div class="note-meta">${n.author} · ${new Date(n.ts).toLocaleDateString('fr-CA', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="note-text">${escapeHtml(n.text)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderCustomActivities() {
+    document.querySelectorAll('.custom-activities-zone').forEach(zone => {
+      const day = zone.dataset.day;
+      const items = (state.custom && state.custom[day]) || [];
+      zone.innerHTML = items.map(item => `
+        <div class="activity custom" data-id="${item.id}">
+          <div class="activity-check" data-id="${item.id}"></div>
+          <div class="activity-body">
+            ${item.time ? `<div class="activity-time">${escapeHtml(item.time)}</div>` : ''}
+            <div class="activity-title">${escapeHtml(item.title)} <span class="badge badge-pending">ajouté</span></div>
+            ${item.desc ? `<div class="activity-desc">${escapeHtml(item.desc)}</div>` : ''}
+          </div>
+          <button class="delete-btn" data-id="${item.id}">🗑</button>
+        </div>
+      `).join('');
+      // Reapply checks on new elements
+      items.forEach(item => {
+        const checkEl = zone.querySelector(`.activity-check[data-id="${item.id}"]`);
+        if (checkEl && state.checks[item.id]) checkEl.classList.add('checked');
+        if (state.deleted[item.id]) zone.querySelector(`.activity[data-id="${item.id}"]`)?.classList.add('deleted');
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  window._sfApp = { applyState, saveState, state };
+</script>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-eyebrow">Voyage · Juillet 2026</div>
+  <h1>🌉 San Francisco</h1>
+  <div class="header-sub">1 – 5 juillet · 2 voyageurs</div>
+  <div class="stamp-header">
+    <span>SFO</span>
+    <span>✈️</span>
+    <span>2026</span>
+  </div>
+</div>
+
+<!-- SYNC BAR -->
+<div class="sync-bar">
+  <div><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Connexion…</span></div>
+  <span style="font-size:10px;opacity:0.6;">Firebase Realtime</span>
+</div>
+
+<!-- CONFIG BANNER (shown until Firebase is set up) -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const label = document.getElementById('sync-label');
+    if (label && label.textContent.includes('Non connecté')) {
+      document.getElementById('config-banner').style.display = 'block';
+    }
+    setTimeout(() => {
+      if (document.getElementById('sync-label').textContent.includes('Non connecté')) {
+        document.getElementById('config-banner').style.display = 'block';
+      }
+    }, 1500);
+  });
+</script>
+<div id="config-banner" class="config-banner" style="display:none;">
+  <strong>⚙️ Firebase non configuré</strong>
+  L'app fonctionne en mode local. Pour activer la synchro avec Raph, remplace les valeurs <code>REPLACE_*</code> dans le fichier <code>index.html</code> par ta config Firebase (voir instructions de setup).
+</div>
+
+<!-- TABS -->
+<div id="tab-itineraire" class="tab-content active" style="padding-top:14px;">
+
+  <!-- JOUR 1 -->
+  <div class="day-card pending">
+    <div class="day-header">
+      <div class="day-header-left">
+        <div class="day-date">Mer 1er juillet — Arrivée</div>
+        <div class="day-subtitle">Ferry Building · Soirée à choisir</div>
+      </div>
+      <span class="day-chevron">▾</span>
+      <div class="day-stamp"><div class="day-stamp-inner">Jour 1</div></div>
+    </div>
+    <div class="day-body">
+      <div class="activity" data-id="j1-ferry">
+        <div class="activity-check" data-id="j1-ferry"></div>
+        <div class="activity-body">
+          <div class="activity-time">Après-midi</div>
+          <div class="activity-title">Ferry Building Marketplace</div>
+          <div class="activity-desc">Hall intérieur ouvert 7h–20h. Marché fermier extérieur pas le mercredi. Balade sur l'Embarcadero.</div>
+        </div>
+        <button class="delete-btn" data-id="j1-ferry">🗑</button>
+      </div>
+
+      <div class="activity" data-id="j1-soir">
+        <div class="activity-check" data-id="j1-soir"></div>
+        <div class="activity-body">
+          <div class="activity-time">Soirée</div>
+          <div class="activity-title">Soirée <span class="badge badge-choose">à choisir</span></div>
+          <div class="options-group">
+            <div class="options-label">Choisir une option</div>
+            <div class="option-item" data-group="j1-soir-opt" data-idx="0">
+              <div class="option-radio"></div>
+              <div class="option-text">🍺 Mission / Valencia St — Fort Point Valencia (taproom + huîtres) ou Hi Hat, coucher de soleil à Dolores Park</div>
+            </div>
+            <div class="option-item" data-group="j1-soir-opt" data-idx="1">
+              <div class="option-radio"></div>
+              <div class="option-text">🌆 Rooftop — The View Lounge (39e étage, vue panoramique)</div>
+            </div>
+            <div class="option-item" data-group="j1-soir-opt" data-idx="2">
+              <div class="option-radio"></div>
+              <div class="option-text">🚶 Chill — Ferry Building + marche Embarcadero</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-activities-zone" data-day="jour1"></div>
+      <button class="add-activity-btn" data-day="jour1">+ Ajouter une activité</button>
+    </div>
+  </div>
+
+  <!-- JOUR 2 -->
+  <div class="day-card confirmed">
+    <div class="day-header">
+      <div class="day-header-left">
+        <div class="day-date">Jeu 2 juillet — eBike Tour 🔒</div>
+        <div class="day-subtitle">Fisherman's Wharf · North Beach · Chinatown</div>
+      </div>
+      <span class="day-chevron">▾</span>
+      <div class="day-stamp"><div class="day-stamp-inner">Jour 2</div></div>
+    </div>
+    <div class="day-body">
+      <div class="activity" data-id="j2-ebike">
+        <div class="activity-check" data-id="j2-ebike"></div>
+        <div class="activity-body">
+          <div class="activity-time">9h30 – ~13h30</div>
+          <div class="activity-title">eBike Tour San Francisco <span class="badge badge-confirmed">Confirmé</span></div>
+          <div class="activity-desc">757 Beach St — Unlimited Biking, Fisherman's Wharf. Arriver 15 min d'avance. Casque fourni. Réf. #1408624209</div>
+        </div>
+        <button class="delete-btn" data-id="j2-ebike">🗑</button>
+      </div>
+      <div class="activity" data-id="j2-mecanique">
+        <div class="activity-check" data-id="j2-mecanique"></div>
+        <div class="activity-body">
+          <div class="activity-time">~13h30 – 14h30</div>
+          <div class="activity-title">Musée Mécanique</div>
+          <div class="activity-desc">Pier 45 — arcade d'appareils antiques. Entrée gratuite.</div>
+        </div>
+        <button class="delete-btn" data-id="j2-mecanique">🗑</button>
+      </div>
+      <div class="activity" data-id="j2-marche">
+        <div class="activity-check" data-id="j2-marche"></div>
+        <div class="activity-body">
+          <div class="activity-time">~14h30</div>
+          <div class="activity-title">Marche Wharf → North Beach → Chinatown</div>
+          <div class="activity-desc">Détour Ross Alley + Waverly Pl.</div>
+        </div>
+        <button class="delete-btn" data-id="j2-marche">🗑</button>
+      </div>
+      <div class="activity" data-id="j2-souper">
+        <div class="activity-check" data-id="j2-souper"></div>
+        <div class="activity-body">
+          <div class="activity-time">Souper</div>
+          <div class="activity-title">Souper North Beach / Chinatown <span class="badge badge-choose">à choisir</span></div>
+          <div class="options-group">
+            <div class="options-label">Choisir un resto</div>
+            <div class="option-item" data-group="j2-souper-opt" data-idx="0">
+              <div class="option-radio"></div>
+              <div class="option-text">🦀 Sotto Mare — cioppino (fruits de mer)</div>
+            </div>
+            <div class="option-item" data-group="j2-souper-opt" data-idx="1">
+              <div class="option-radio"></div>
+              <div class="option-text">🍕 Tony's Pizza Napoletana</div>
+            </div>
+            <div class="option-item" data-group="j2-souper-opt" data-idx="2">
+              <div class="option-radio"></div>
+              <div class="option-text">🍝 Original Joe's</div>
+            </div>
+            <div class="option-item" data-group="j2-souper-opt" data-idx="3">
+              <div class="option-radio"></div>
+              <div class="option-text">🌶️ Z & Y — Sichuan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="custom-activities-zone" data-day="jour2"></div>
+      <button class="add-activity-btn" data-day="jour2">+ Ajouter une activité</button>
+    </div>
+  </div>
+
+  <!-- JOUR 3 -->
+  <div class="day-card confirmed">
+    <div class="day-header">
+      <div class="day-header-left">
+        <div class="day-date">Ven 3 juillet — Golden Gate 🔒</div>
+        <div class="day-subtitle">Japantown · Mister Jiu's ⭐</div>
+      </div>
+      <span class="day-chevron">▾</span>
+      <div class="day-stamp"><div class="day-stamp-inner">Jour 3</div></div>
+    </div>
+    <div class="day-body">
+      <div class="activity" data-id="j3-gg">
+        <div class="activity-check" data-id="j3-gg"></div>
+        <div class="activity-body">
+          <div class="activity-time">~9h30 – 12h</div>
+          <div class="activity-title">Golden Gate Bridge</div>
+          <div class="activity-desc">Welcome Center → marche sur le pont → Fort Point (ouvert ven. 10h–17h).</div>
+        </div>
+        <button class="delete-btn" data-id="j3-gg">🗑</button>
+      </div>
+      <div class="activity" data-id="j3-ramen">
+        <div class="activity-check" data-id="j3-ramen"></div>
+        <div class="activity-body">
+          <div class="activity-time">~12h30</div>
+          <div class="activity-title">Marufuku Ramen — Japan Center</div>
+          <div class="activity-desc">Mettre son nom sur la waitlist Google avant d'arriver.</div>
+        </div>
+        <button class="delete-btn" data-id="j3-ramen">🗑</button>
+      </div>
+      <div class="activity" data-id="j3-japantown">
+        <div class="activity-check" data-id="j3-japantown"></div>
+        <div class="activity-body">
+          <div class="activity-time">~14h – 16h30</div>
+          <div class="activity-title">Japantown + Fillmore St</div>
+          <div class="activity-desc">Japan Center Malls, Kinokuniya, Peace Pagoda (possiblement en rénovation). Pacific Heights.</div>
+        </div>
+        <button class="delete-btn" data-id="j3-japantown">🗑</button>
+      </div>
+      <div class="activity" data-id="j3-mister">
+        <div class="activity-check" data-id="j3-mister"></div>
+        <div class="activity-body">
+          <div class="activity-time">18h00</div>
+          <div class="activity-title">Mister Jiu's ⭐ Michelin <span class="badge badge-confirmed">Confirmé</span></div>
+          <div class="activity-desc">28 Waverly Pl, Chinatown. 2 pers, High Top. Dépôt 25$/pers. Réservé via Resy.</div>
+        </div>
+        <button class="delete-btn" data-id="j3-mister">🗑</button>
+      </div>
+      <div class="activity" data-id="j3-balade">
+        <div class="activity-check" data-id="j3-balade"></div>
+        <div class="activity-body">
+          <div class="activity-time">~20h+</div>
+          <div class="activity-title">Balade digestive Chinatown / North Beach</div>
+        </div>
+        <button class="delete-btn" data-id="j3-balade">🗑</button>
+      </div>
+      <div class="custom-activities-zone" data-day="jour3"></div>
+      <button class="add-activity-btn" data-day="jour3">+ Ajouter une activité</button>
+    </div>
+  </div>
+
+  <!-- JOUR 4 -->
+  <div class="day-card confirmed">
+    <div class="day-header">
+      <div class="day-header-left">
+        <div class="day-date">Sam 4 juillet — 🇺🇸 Fête nationale</div>
+        <div class="day-subtitle">Cable Car · Feux d'artifice</div>
+      </div>
+      <span class="day-chevron">▾</span>
+      <div class="day-stamp"><div class="day-stamp-inner">Jour 4</div></div>
+    </div>
+    <div class="day-body">
+      <div class="activity" data-id="j4-asian">
+        <div class="activity-check" data-id="j4-asian"></div>
+        <div class="activity-body">
+          <div class="activity-time">Avant-midi (optionnel)</div>
+          <div class="activity-title">Asian Art Museum</div>
+          <div class="activity-desc">À côté de l'Airbnb. Ouvert sam. 10h–17h.</div>
+        </div>
+        <button class="delete-btn" data-id="j4-asian">🗑</button>
+      </div>
+      <div class="activity" data-id="j4-cablecar">
+        <div class="activity-check" data-id="j4-cablecar"></div>
+        <div class="activity-body">
+          <div class="activity-time">Midi / début pm</div>
+          <div class="activity-title">Cable Car — Ligne Powell-Hyde</div>
+          <div class="activity-desc">Depuis Powell St Turnaround. Y aller tôt (files longues). Prépayer via Clipper/MuniMobile. Passe au sommet de Lombard St, descend vers Fisherman's Wharf.</div>
+        </div>
+        <button class="delete-btn" data-id="j4-cablecar">🗑</button>
+      </div>
+      <div class="activity" data-id="j4-wharf">
+        <div class="activity-check" data-id="j4-wharf"></div>
+        <div class="activity-body">
+          <div class="activity-time">Pm</div>
+          <div class="activity-title">Fisherman's Wharf — Fête nationale</div>
+          <div class="activity-desc">Concert gratuit dès 14h. Souper fruits de mer à choisir sur place.</div>
+        </div>
+        <button class="delete-btn" data-id="j4-wharf">🗑</button>
+      </div>
+      <div class="activity" data-id="j4-feux">
+        <div class="activity-check" data-id="j4-feux"></div>
+        <div class="activity-body">
+          <div class="activity-time">21h30</div>
+          <div class="activity-title">Feux d'artifice (~20 min)</div>
+          <div class="options-group">
+            <div class="options-label">Meilleur spot</div>
+            <div class="option-item" data-group="j4-feux-opt" data-idx="0">
+              <div class="option-radio"></div>
+              <div class="option-text">🏊 Aquatic Park</div>
+            </div>
+            <div class="option-item" data-group="j4-feux-opt" data-idx="1">
+              <div class="option-radio"></div>
+              <div class="option-text">🛳 Pier 39</div>
+            </div>
+            <div class="option-item" data-group="j4-feux-opt" data-idx="2">
+              <div class="option-radio"></div>
+              <div class="option-text">🚢 Promenade Pier 43</div>
+            </div>
+            <div class="option-item" data-group="j4-feux-opt" data-idx="3">
+              <div class="option-radio"></div>
+              <div class="option-text">🌿 Crissy Field</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="warning-box">Jusqu'à 200 000 personnes. Transport en commun recommandé. Habits en couches (vent + brouillard). Arriver tôt. Cable cars possiblement suspendus le soir.</div>
+      <div class="custom-activities-zone" data-day="jour4"></div>
+      <button class="add-activity-btn" data-day="jour4">+ Ajouter une activité</button>
+    </div>
+  </div>
+
+  <!-- JOUR 5 -->
+  <div class="day-card confirmed">
+    <div class="day-header">
+      <div class="day-header-left">
+        <div class="day-date">Dim 5 juillet — Départ ✈️</div>
+        <div class="day-subtitle">Vol 11h30</div>
+      </div>
+      <span class="day-chevron">▾</span>
+      <div class="day-stamp"><div class="day-stamp-inner">Jour 5</div></div>
+    </div>
+    <div class="day-body">
+      <div class="activity" data-id="j5-depart">
+        <div class="activity-check" data-id="j5-depart"></div>
+        <div class="activity-body">
+          <div class="activity-time">8h30</div>
+          <div class="activity-title">Quitter l'Airbnb</div>
+        </div>
+        <button class="delete-btn" data-id="j5-depart">🗑</button>
+      </div>
+      <div class="activity" data-id="j5-bart">
+        <div class="activity-check" data-id="j5-bart"></div>
+        <div class="activity-body">
+          <div class="activity-time">~8h45</div>
+          <div class="activity-title">BART — Civic Center → SFO</div>
+          <div class="activity-desc">~30 min · ~9-12 $US/pers (Clipper). Dimanche = BART moins fréquent, démarre ~8h. Viser SFO vers 9h30.</div>
+        </div>
+        <button class="delete-btn" data-id="j5-bart">🗑</button>
+      </div>
+      <div class="activity" data-id="j5-vol">
+        <div class="activity-check" data-id="j5-vol"></div>
+        <div class="activity-body">
+          <div class="activity-time">11h30</div>
+          <div class="activity-title">Vol de retour ✈️</div>
+        </div>
+        <button class="delete-btn" data-id="j5-vol">🗑</button>
+      </div>
+      <div class="custom-activities-zone" data-day="jour5"></div>
+      <button class="add-activity-btn" data-day="jour5">+ Ajouter une activité</button>
+    </div>
+  </div>
+
+</div><!-- end tab-itineraire -->
+
+<!-- TAB RÉSERVATIONS -->
+<div id="tab-reservations" class="tab-content">
+  <div class="section-title">Hébergement</div>
+  <div class="airbnb-card">
+    <div style="font-family:'Special Elite',cursive;font-size:15px;color:var(--ink);margin-bottom:4px;">Airbnb — 49 Grace Street</div>
+    <div style="font-size:12px;color:var(--brown);line-height:1.6;">
+      Secteur Civic Center<br>
+      À côté de l'Asian Art Museum<br>
+      Station BART Civic Center (à pied)
+    </div>
+  </div>
+
+  <div class="section-title">Réservations confirmées</div>
+  <div class="resa-card">
+    <div class="resa-name">eBike Tour San Francisco</div>
+    <div class="resa-detail">
+      📅 Jeudi 2 juillet · 9h30 (~4h)<br>
+      👥 2 adultes · 294,32 $CA<br>
+      📍 757 Beach St — Unlimited Biking, Fisherman's Wharf<br>
+      ℹ️ Arriver 15 min d'avance · Casque fourni
+    </div>
+    <div class="resa-ref">Réf. #1408624209</div>
+  </div>
+  <div class="resa-card">
+    <div class="resa-name">Mister Jiu's ⭐ Michelin</div>
+    <div class="resa-detail">
+      📅 Vendredi 3 juillet · 18h00<br>
+      👥 2 personnes · High Top<br>
+      📍 28 Waverly Pl, Chinatown<br>
+      💳 Dépôt 25 $/pers (Resy)
+    </div>
+    <div class="resa-ref">Confirmation par courriel Resy</div>
+  </div>
+</div>
+
+<!-- TAB NOTES -->
+<div id="tab-notes" class="tab-content">
+  <div id="notes-list"></div>
+  <button class="add-note-btn" id="open-note-modal">✏️ Ajouter une note</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="tabs-nav">
+  <button class="tab-btn active" data-tab="itineraire">
+    <span class="tab-icon">🗓</span>
+    <span class="tab-label">Itinéraire</span>
+  </button>
+  <button class="tab-btn" data-tab="reservations">
+    <span class="tab-icon">🔒</span>
+    <span class="tab-label">Réservations</span>
+  </button>
+  <button class="tab-btn" data-tab="notes">
+    <span class="tab-icon">📝</span>
+    <span class="tab-label">Notes</span>
+  </button>
+</div>
+
+<!-- ADD ACTIVITY MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h3>Ajouter une activité</h3>
+    <input type="hidden" id="modal-day">
+    <input type="text" id="modal-time" placeholder="Heure (ex. 15h00)">
+    <input type="text" id="modal-title" placeholder="Titre de l'activité *">
+    <textarea id="modal-desc" placeholder="Description (optionnel)"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="modal-cancel">Annuler</button>
+      <button class="btn-primary" id="modal-save">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD NOTE MODAL -->
+<div class="modal-overlay" id="note-modal">
+  <div class="modal">
+    <h3>Nouvelle note</h3>
+    <input type="text" id="note-author" placeholder="Ton prénom">
+    <textarea id="note-text-input" placeholder="Ta note…" style="height:100px;"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="note-cancel">Annuler</button>
+      <button class="btn-primary" id="note-save">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
