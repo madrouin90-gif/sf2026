@@ -528,12 +528,17 @@ document.addEventListener('click', e => {
   if (addBtn) {
     document.getElementById('modal-day').value = addBtn.dataset.day;
     document.getElementById('add-modal').classList.add('open');
-    document.getElementById('modal-title').focus();
+    setTimeout(() => {
+      initPickerMap();
+      document.getElementById('modal-title').focus();
+    }, 50);
     return;
   }
   // Add modal cancel
   if (e.target.closest('#modal-cancel') || e.target === document.getElementById('add-modal')) {
-    document.getElementById('add-modal').classList.remove('open'); return;
+    document.getElementById('add-modal').classList.remove('open');
+    resetPickerModal();
+    return;
   }
   // Add modal save
   if (e.target.closest('#modal-save')) {
@@ -541,14 +546,16 @@ document.addEventListener('click', e => {
     const time = document.getElementById('modal-time').value;
     const title = document.getElementById('modal-title').value.trim();
     const desc = document.getElementById('modal-desc').value.trim();
+    const lat = parseFloat(document.getElementById('modal-lat').value);
+    const lng = parseFloat(document.getElementById('modal-lng').value);
     if (!title) { document.getElementById('modal-title').focus(); return; }
     if (!state.custom[day]) state.custom[day] = [];
     const timeDisplay = time ? formatTime(time) : '';
-    state.custom[day].push({ id: 'c' + Date.now(), time: timeDisplay, title, desc });
+    const newActivity = { id: 'c' + Date.now(), time: timeDisplay, title, desc };
+    if (!isNaN(lat) && !isNaN(lng)) { newActivity._lat = lat; newActivity._lng = lng; }
+    state.custom[day].push(newActivity);
     document.getElementById('add-modal').classList.remove('open');
-    document.getElementById('modal-time').value = '';
-    document.getElementById('modal-title').value = '';
-    document.getElementById('modal-desc').value = '';
+    resetPickerModal();
     applyState(); saveState(); return;
   }
   // Note modal
@@ -1197,10 +1204,13 @@ window._app = { state, saveState, applyState };
 
 <!-- ADD ACTIVITY MODAL -->
 <div class="modal-overlay" id="add-modal">
-  <div class="modal">
+  <div class="modal" style="padding-bottom: calc(env(safe-area-inset-bottom) + 16px);">
     <div class="modal-handle"></div>
     <h3>Ajouter une activité</h3>
     <input type="hidden" id="modal-day">
+    <input type="hidden" id="modal-lat">
+    <input type="hidden" id="modal-lng">
+
     <div class="modal-field">
       <label class="modal-label">Heure</label>
       <input type="time" id="modal-time" class="modal-input">
@@ -1213,9 +1223,23 @@ window._app = { state, saveState, applyState };
       <label class="modal-label">Description</label>
       <textarea id="modal-desc" class="modal-input modal-textarea" placeholder="Détails, adresse, notes…"></textarea>
     </div>
+
+    <!-- MAP PICKER -->
+    <div class="modal-field">
+      <label class="modal-label">Localisation sur la carte</label>
+      <div id="modal-search-wrap" style="position:relative;margin-bottom:8px;">
+        <input type="text" id="modal-search" class="modal-input" placeholder="Rechercher un endroit…" style="padding-right:40px;">
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);pointer-events:none;">🔍</span>
+      </div>
+      <div id="modal-map-picker" style="width:100%;height:200px;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:12px;color:var(--text-tertiary);">Recherche un endroit pour placer le pin</span>
+      </div>
+      <div id="modal-location-label" style="font-size:11px;color:var(--accent);margin-top:5px;font-weight:500;min-height:16px;"></div>
+    </div>
+
     <div class="modal-btns">
       <button class="btn-cancel" id="modal-cancel">Annuler</button>
-      <button class="btn-primary" id="modal-save">Ajouter</button>
+      <button class="btn-primary" id="modal-save">Ajouter à l'itinéraire</button>
     </div>
   </div>
 </div>
@@ -1261,7 +1285,107 @@ window._app = { state, saveState, applyState };
 
 <!-- GOOGLE MAPS JS -->
 <script>
-// ── ITINERARY DATA: coordinates + labels for each day ──
+// ── MAP PICKER in Add Modal ──
+let pickerMap = null;
+let pickerMarker = null;
+let pickerAutocomplete = null;
+
+function initPickerMap() {
+  if (pickerMap) return;
+  loadMapsApi(() => {
+    const container = document.getElementById('modal-map-picker');
+    container.innerHTML = '';
+    const sfCenter = { lat: 37.7749, lng: -122.4194 };
+    pickerMap = new google.maps.Map(container, {
+      center: sfCenter,
+      zoom: 13,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+      styles: [
+        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+      ]
+    });
+
+    // Click to place marker
+    pickerMap.addListener('click', e => {
+      placePickerMarker(e.latLng.lat(), e.latLng.lng());
+      reverseGeocode(e.latLng.lat(), e.latLng.lng());
+    });
+
+    // Autocomplete search
+    const searchInput = document.getElementById('modal-search');
+    pickerAutocomplete = new google.maps.places.Autocomplete(searchInput, {
+      componentRestrictions: { country: 'us' },
+      fields: ['geometry', 'name', 'formatted_address']
+    });
+    pickerAutocomplete.addListener('place_changed', () => {
+      const place = pickerAutocomplete.getPlace();
+      if (!place.geometry) return;
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      pickerMap.setCenter({ lat, lng });
+      pickerMap.setZoom(16);
+      placePickerMarker(lat, lng);
+      const label = place.name || place.formatted_address;
+      document.getElementById('modal-location-label').textContent = '📍 ' + label;
+      if (!document.getElementById('modal-title').value) {
+        document.getElementById('modal-title').value = place.name || '';
+      }
+    });
+  });
+}
+
+function placePickerMarker(lat, lng) {
+  document.getElementById('modal-lat').value = lat;
+  document.getElementById('modal-lng').value = lng;
+  if (pickerMarker) {
+    pickerMarker.setPosition({ lat, lng });
+  } else {
+    pickerMarker = new google.maps.Marker({
+      position: { lat, lng },
+      map: pickerMap,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#1A73E8',
+        fillOpacity: 1,
+        strokeColor: 'white',
+        strokeWeight: 2.5,
+        scale: 14
+      },
+      draggable: true,
+      animation: google.maps.Animation.DROP
+    });
+    pickerMarker.addListener('dragend', e => {
+      document.getElementById('modal-lat').value = e.latLng.lat();
+      document.getElementById('modal-lng').value = e.latLng.lng();
+      reverseGeocode(e.latLng.lat(), e.latLng.lng());
+    });
+  }
+}
+
+function reverseGeocode(lat, lng) {
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      document.getElementById('modal-location-label').textContent = '📍 ' + results[0].formatted_address;
+    }
+  });
+}
+
+function resetPickerModal() {
+  document.getElementById('modal-time').value = '';
+  document.getElementById('modal-title').value = '';
+  document.getElementById('modal-desc').value = '';
+  document.getElementById('modal-search').value = '';
+  document.getElementById('modal-lat').value = '';
+  document.getElementById('modal-lng').value = '';
+  document.getElementById('modal-location-label').textContent = '';
+  if (pickerMarker) { pickerMarker.setMap(null); pickerMarker = null; }
+  if (pickerMap) { pickerMap.setCenter({ lat: 37.7749, lng: -122.4194 }); pickerMap.setZoom(13); }
+}
+
 // Each activity has: id (matches data-id in HTML), lat, lng, label
 // When an activity is deleted from state, it's removed from the map automatically.
 const ITINERARY = {
@@ -1312,7 +1436,7 @@ function loadMapsApi(cb) {
     mapsApiCallbacks.length = 0;
   };
   const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&callback=__mapsReady&libraries=geometry`;
+  s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&callback=__mapsReady&libraries=geometry,places`;
   s.async = true; s.defer = true;
   document.head.appendChild(s);
 }
