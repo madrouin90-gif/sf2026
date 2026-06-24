@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -236,10 +235,10 @@ body {
   transition: background 0.15s;
 }
 .map-toggle-btn:active { background: var(--border); }
-.map-frame { margin-top: 8px; border-radius: var(--radius-sm); overflow: hidden; display: none; height: 240px; }
+.map-frame { margin-top: 8px; border-radius: var(--radius-sm); overflow: hidden; display: none; height: 380px; }
 .map-frame.open { display: block; }
 .map-frame .map-canvas { width: 100%; height: 100%; }
-.full-map-frame { width: 100%; height: 280px; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+.full-map-frame { width: 100%; height: 360px; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
 
 /* ── ADD ACTIVITY BTN ── */
 .add-btn-row { padding: 8px 16px 4px; }
@@ -307,7 +306,7 @@ body {
 .full-map-header { padding: 12px 14px; border-bottom: 1px solid var(--border); }
 .full-map-title { font-size: 14px; font-weight: 600; }
 .full-map-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.full-map-card .full-map-frame { width: 100%; height: 260px; }
+.full-map-card .full-map-frame { width: 100%; height: 360px; }
 
 /* ── MODAL ── */
 .modal-overlay {
@@ -424,6 +423,8 @@ onValue(ref(db, 'sf2026/state'), snap => {
   if (d) state = { ...DEFAULT, ...d };
   applyState();
   setSyncUI('connected');
+  // Refresh any open maps when remote state arrives
+  if (window._refreshMap) [1,2,3,4,5].forEach(dd => window._refreshMap(dd));
 }, () => setSyncUI('error'));
 
 // ── APPLY STATE ──
@@ -552,7 +553,7 @@ document.addEventListener('click', e => {
     if (!state.custom[day]) state.custom[day] = [];
     const timeDisplay = time ? formatTime(time) : '';
     const newActivity = { id: 'c' + Date.now(), time: timeDisplay, title, desc };
-    if (!isNaN(lat) && !isNaN(lng)) { newActivity._lat = lat; newActivity._lng = lng; }
+    if (!isNaN(lat) && !isNaN(lng)) { newActivity._lat = lat; newActivity._lng = lng; newActivity.customLat = lat; newActivity.customLng = lng; }
     state.custom[day].push(newActivity);
     document.getElementById('add-modal').classList.remove('open');
     resetPickerModal();
@@ -618,19 +619,25 @@ function renderNotes() {
 function renderCustom() {
   document.querySelectorAll('.custom-activities-zone').forEach(zone => {
     const day = zone.dataset.day;
-    const items = (state.custom&&state.custom[day])||[];
-    zone.innerHTML = items.map(item => `
-      <div class="activity" data-id="${item.id}" style="${state.deleted[item.id]?'display:none':''}">
-        <button class="check-btn${state.checks[item.id]?' checked':''}" data-id="${item.id}" style="background:none;border:none;cursor:pointer;padding:10px;margin:-10px 0 -10px -10px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
+    const items = (state.custom && state.custom[day]) || [];
+    zone.innerHTML = items.map(item => {
+      const mapsLink = ((item._lat || item.customLat) && (item._lng || item.customLng))
+        ? `<a class="activity-link" href="https://maps.google.com/?q=${item._lat || item.customLat},${item._lng || item.customLng}" target="_blank">📍 Maps</a>`
+        : '';
+      return `
+      <div class="activity" data-id="${item.id}" style="${state.deleted[item.id] ? 'display:none' : ''}">
+        <button class="check-btn${state.checks[item.id] ? ' checked' : ''}" data-id="${item.id}" style="background:none;border:none;cursor:pointer;padding:10px;margin:-10px 0 -10px -10px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
           <div class="check-box"></div>
         </button>
         <div class="activity-content">
-          ${item.time?`<div class="activity-time">${esc(item.time)}</div>`:''}
-          <div class="activity-title${state.checks[item.id]?' striked':''}">${esc(item.title)} <span class="badge badge-custom">Ajouté</span></div>
-          ${item.desc?`<div class="activity-desc">${esc(item.desc)}</div>`:''}
+          ${item.time ? `<div class="activity-time">${esc(item.time)}</div>` : ''}
+          <div class="activity-title${state.checks[item.id] ? ' striked' : ''}">${esc(item.title)} <span class="badge badge-custom">Ajouté</span></div>
+          ${item.desc ? `<div class="activity-desc">${esc(item.desc)}</div>` : ''}
+          ${mapsLink ? `<div class="activity-links">${mapsLink}</div>` : ''}
         </div>
         <button class="del-btn" data-id="${item.id}" style="background:none;border:none;cursor:pointer;color:var(--text-tertiary);font-size:16px;padding:8px;flex-shrink:0;">🗑</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   });
 }
 
@@ -1451,8 +1458,8 @@ function getActivePoints(dayNum) {
   const dayKey = 'jour' + dayNum;
   const custom = appState && appState.custom && appState.custom[dayKey] || [];
   const customPoints = custom
-    .filter(c => !deleted[c.id] && c._lat)
-    .map(c => ({ id: c.id, lat: c._lat, lng: c._lng, label: c.title }));
+    .filter(c => !deleted[c.id] && (c._lat || c.customLat))
+    .map(c => ({ id: c.id, lat: c._lat || c.customLat, lng: c._lng || c.customLng, label: c.title }));
 
   return [...base, ...customPoints];
 }
@@ -1552,14 +1559,20 @@ function buildMap(dayNum, containerId) {
 function refreshMap(dayNum) {
   const inlineId = 'map-inline-' + dayNum;
   const fullId = 'map-full-' + dayNum;
-  [inlineId, fullId].forEach(id => {
-    if (mapInstances[id]) {
-      // Map already exists — clear and rebuild
-      delete mapInstances[id];
-      const el = document.getElementById(id);
-      if (el) { el.innerHTML = ''; buildMap(dayNum, id); }
-    }
-  });
+  // Rebuild inline map if it's currently open (visible)
+  const inlineFrame = document.getElementById('mapframe-' + dayNum);
+  if (inlineFrame && inlineFrame.classList.contains('open')) {
+    delete mapInstances[inlineId];
+    const el = document.getElementById(inlineId);
+    if (el) { el.innerHTML = ''; buildMap(dayNum, inlineId); }
+  }
+  // Rebuild full map if the carte tab is active
+  const carteTab = document.getElementById('tab-carte');
+  if (carteTab && carteTab.classList.contains('active')) {
+    delete mapInstances[fullId];
+    const el = document.getElementById(fullId);
+    if (el) { el.innerHTML = ''; buildMap(dayNum, fullId); }
+  }
 }
 
 // Expose refresh globally so Firebase state updates can trigger it
