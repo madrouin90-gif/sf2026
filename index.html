@@ -236,9 +236,10 @@ body {
   transition: background 0.15s;
 }
 .map-toggle-btn:active { background: var(--border); }
-.map-frame { margin-top: 8px; border-radius: var(--radius-sm); overflow: hidden; display: none; }
+.map-frame { margin-top: 8px; border-radius: var(--radius-sm); overflow: hidden; display: none; height: 240px; }
 .map-frame.open { display: block; }
-.map-frame iframe { width: 100%; height: 220px; border: none; display: block; }
+.map-frame .map-canvas { width: 100%; height: 100%; }
+.full-map-frame { width: 100%; height: 280px; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
 
 /* ── ADD ACTIVITY BTN ── */
 .add-btn-row { padding: 8px 16px 4px; }
@@ -306,7 +307,7 @@ body {
 .full-map-header { padding: 12px 14px; border-bottom: 1px solid var(--border); }
 .full-map-title { font-size: 14px; font-weight: 600; }
 .full-map-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.full-map-card iframe { width: 100%; height: 260px; border: none; display: block; }
+.full-map-card .full-map-frame { width: 100%; height: 260px; }
 
 /* ── MODAL ── */
 .modal-overlay {
@@ -414,6 +415,8 @@ function saveState() {
   set(ref(db, 'sf2026/state'), state)
     .then(() => setSyncUI('connected'))
     .catch(() => setSyncUI('error'));
+  // Refresh all maps after any state change
+  if (window._refreshMap) [1,2,3,4,5].forEach(d => window._refreshMap(d));
 }
 
 onValue(ref(db, 'sf2026/state'), snap => {
@@ -547,14 +550,6 @@ document.addEventListener('click', e => {
     document.getElementById('modal-title').value = '';
     document.getElementById('modal-desc').value = '';
     applyState(); saveState(); return;
-  }
-  // Map toggle
-  const mapToggle = e.target.closest('.map-toggle-btn');
-  if (mapToggle) {
-    const frame = mapToggle.nextElementSibling;
-    const isOpen = frame.classList.toggle('open');
-    mapToggle.querySelector('.map-chevron').textContent = isOpen ? '▴' : '▾';
-    return;
   }
   // Note modal
   if (e.target.closest('#open-note-modal')) {
@@ -711,14 +706,12 @@ window._app = { state, saveState, applyState };
       <div class="add-btn-row"><button class="add-activity-btn" data-day="jour1">＋ Ajouter une activité</button></div>
 
       <div class="map-section">
-        <button class="map-toggle-btn">
+        <button class="map-toggle-btn" data-mapday="1">
           <span>🗺 Voir la carte du jour</span>
           <span class="map-chevron">▾</span>
         </button>
-        <div class="map-frame">
-          <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Ferry+Building+Marketplace,Embarcadero,San+Francisco&zoom=14">
-          </iframe>
+        <div class="map-frame" id="mapframe-1">
+          <div class="map-canvas" id="map-inline-1"></div>
         </div>
       </div>
     </div>
@@ -819,14 +812,12 @@ window._app = { state, saveState, applyState };
       <div class="add-btn-row"><button class="add-activity-btn" data-day="jour2">＋ Ajouter une activité</button></div>
 
       <div class="map-section">
-        <button class="map-toggle-btn">
+        <button class="map-toggle-btn" data-mapday="2">
           <span>🗺 Voir la carte du jour</span>
           <span class="map-chevron">▾</span>
         </button>
-        <div class="map-frame">
-          <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Fisherman%27s+Wharf,North+Beach,Chinatown+San+Francisco&zoom=14">
-          </iframe>
+        <div class="map-frame" id="mapframe-2">
+          <div class="map-canvas" id="map-inline-2"></div>
         </div>
       </div>
     </div>
@@ -925,14 +916,12 @@ window._app = { state, saveState, applyState };
       <div class="add-btn-row"><button class="add-activity-btn" data-day="jour3">＋ Ajouter une activité</button></div>
 
       <div class="map-section">
-        <button class="map-toggle-btn">
+        <button class="map-toggle-btn" data-mapday="3">
           <span>🗺 Voir la carte du jour</span>
           <span class="map-chevron">▾</span>
         </button>
-        <div class="map-frame">
-          <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Golden+Gate+Bridge,Japan+Center,Mister+Jiu%27s+San+Francisco&zoom=12">
-          </iframe>
+        <div class="map-frame" id="mapframe-3">
+          <div class="map-canvas" id="map-inline-3"></div>
         </div>
       </div>
     </div>
@@ -1037,14 +1026,12 @@ window._app = { state, saveState, applyState };
       <div class="add-btn-row"><button class="add-activity-btn" data-day="jour4">＋ Ajouter une activité</button></div>
 
       <div class="map-section">
-        <button class="map-toggle-btn">
+        <button class="map-toggle-btn" data-mapday="4">
           <span>🗺 Voir la carte du jour</span>
           <span class="map-chevron">▾</span>
         </button>
-        <div class="map-frame">
-          <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Fisherman%27s+Wharf,Aquatic+Park,Pier+39+San+Francisco&zoom=14">
-          </iframe>
+        <div class="map-frame" id="mapframe-4">
+          <div class="map-canvas" id="map-inline-4"></div>
         </div>
       </div>
     </div>
@@ -1157,36 +1144,28 @@ window._app = { state, saveState, applyState };
       <div class="full-map-title">Jour 1 — Arrivée</div>
       <div class="full-map-sub">Ferry Building · Embarcadero</div>
     </div>
-    <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-      src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Ferry+Building,Embarcadero+San+Francisco&zoom=14">
-    </iframe>
+    <div class="full-map-frame" id="map-full-1"></div>
   </div>
   <div class="full-map-card">
     <div class="full-map-header">
       <div class="full-map-title">Jour 2 — eBike Tour</div>
       <div class="full-map-sub">Wharf · North Beach · Chinatown</div>
     </div>
-    <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-      src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Fisherman%27s+Wharf,North+Beach,Chinatown+San+Francisco&zoom=13">
-    </iframe>
+    <div class="full-map-frame" id="map-full-2"></div>
   </div>
   <div class="full-map-card">
     <div class="full-map-header">
       <div class="full-map-title">Jour 3 — Golden Gate</div>
       <div class="full-map-sub">Japantown · Mister Jiu's</div>
     </div>
-    <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-      src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Golden+Gate+Bridge,Japan+Center+San+Francisco&zoom=12">
-    </iframe>
+    <div class="full-map-frame" id="map-full-3"></div>
   </div>
   <div class="full-map-card">
     <div class="full-map-header">
       <div class="full-map-title">Jour 4 — Fête nationale 🇺🇸</div>
       <div class="full-map-sub">Cable Car · Wharf · Feux</div>
     </div>
-    <iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
-      src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64&q=Powell+Street,Fisherman%27s+Wharf,Aquatic+Park+San+Francisco&zoom=13">
-    </iframe>
+    <div class="full-map-frame" id="map-full-4"></div>
   </div>
 </div>
 
@@ -1279,6 +1258,215 @@ window._app = { state, saveState, applyState };
   <span id="toast-msg"></span>
   <button class="toast-undo" id="toast-undo" data-id="">Annuler</button>
 </div>
+
+<!-- GOOGLE MAPS JS -->
+<script>
+// ── ITINERARY DATA: coordinates + labels for each day ──
+// Each activity has: id (matches data-id in HTML), lat, lng, label
+// When an activity is deleted from state, it's removed from the map automatically.
+const ITINERARY = {
+  1: [
+    { id: 'j1-ferry', lat: 37.7955, lng: -122.3937, label: 'Ferry Building' },
+    { id: 'j1-soir',  lat: 37.7599, lng: -122.4148, label: 'Soirée Mission/Valencia' }
+  ],
+  2: [
+    { id: 'j2-ebike',  lat: 37.8080, lng: -122.4177, label: 'eBike Tour — 757 Beach St' },
+    { id: 'j2-musee',  lat: 37.8097, lng: -122.4152, label: 'Musée Mécanique — Pier 45' },
+    { id: 'j2-marche', lat: 37.7999, lng: -122.4070, label: 'North Beach / Ross Alley' },
+    { id: 'j2-souper', lat: 37.7952, lng: -122.4063, label: 'Souper Chinatown' }
+  ],
+  3: [
+    { id: 'j3-gg',     lat: 37.8199, lng: -122.4783, label: 'Golden Gate Bridge' },
+    { id: 'j3-ramen',  lat: 37.7851, lng: -122.4310, label: 'Marufuku Ramen — Japan Center' },
+    { id: 'j3-japan',  lat: 37.7853, lng: -122.4315, label: 'Japantown / Fillmore St' },
+    { id: 'j3-jius',   lat: 37.7952, lng: -122.4063, label: "Mister Jiu's — 28 Waverly Pl" },
+    { id: 'j3-balade', lat: 37.7975, lng: -122.4072, label: 'Balade Chinatown / North Beach' }
+  ],
+  4: [
+    { id: 'j4-asian', lat: 37.7799, lng: -122.4165, label: 'Asian Art Museum' },
+    { id: 'j4-cable', lat: 37.7844, lng: -122.4079, label: 'Cable Car — Powell St Turnaround' },
+    { id: 'j4-wharf', lat: 37.8080, lng: -122.4177, label: "Fisherman's Wharf" },
+    { id: 'j4-feux',  lat: 37.8074, lng: -122.4220, label: 'Feux — Aquatic Park / Pier 39' }
+  ],
+  5: [
+    { id: 'j5-quitter', lat: 37.7773, lng: -122.4193, label: 'Airbnb — 49 Grace St' },
+    { id: 'j5-bart',    lat: 37.7793, lng: -122.4143, label: 'BART Civic Center' },
+    { id: 'j5-vol',     lat: 37.6213, lng: -122.3790, label: 'SFO — San Francisco Airport' }
+  ]
+};
+
+const MAPS_KEY = 'AIzaSyDLInCALEbDxIxTDYtSRzaft-tDXJwap64';
+const mapInstances = {}; // dayNum -> { map, markers[], directionsRenderer }
+let mapsApiLoaded = false;
+let mapsApiLoading = false;
+const mapsApiCallbacks = [];
+
+function loadMapsApi(cb) {
+  if (mapsApiLoaded) { cb(); return; }
+  mapsApiCallbacks.push(cb);
+  if (mapsApiLoading) return;
+  mapsApiLoading = true;
+  window.__mapsReady = function() {
+    mapsApiLoaded = true;
+    mapsApiCallbacks.forEach(f => f());
+    mapsApiCallbacks.length = 0;
+  };
+  const s = document.createElement('script');
+  s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&callback=__mapsReady&libraries=geometry`;
+  s.async = true; s.defer = true;
+  document.head.appendChild(s);
+}
+
+// Get active (non-deleted) points for a day, including custom activities geocoded on the fly
+function getActivePoints(dayNum) {
+  const appState = window._app && window._app.state;
+  const deleted = appState ? appState.deleted : {};
+  const base = (ITINERARY[dayNum] || []).filter(p => !deleted[p.id]);
+
+  // Custom activities for this day — use geocoding if they have an address, skip otherwise
+  const dayKey = 'jour' + dayNum;
+  const custom = appState && appState.custom && appState.custom[dayKey] || [];
+  const customPoints = custom
+    .filter(c => !deleted[c.id] && c._lat)
+    .map(c => ({ id: c.id, lat: c._lat, lng: c._lng, label: c.title }));
+
+  return [...base, ...customPoints];
+}
+
+function buildMap(dayNum, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  loadMapsApi(() => {
+    const points = getActivePoints(dayNum);
+    if (!points.length) {
+      container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9AA0A6;font-size:13px;">Aucune activité à afficher</div>';
+      return;
+    }
+
+    const center = { lat: points[0].lat, lng: points[0].lng };
+    const map = new google.maps.Map(container, {
+      center,
+      zoom: 13,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+      styles: [
+        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] }
+      ]
+    });
+
+    const infoWindow = new google.maps.InfoWindow();
+    const markers = [];
+
+    points.forEach((pt, i) => {
+      const num = i + 1;
+      const marker = new google.maps.Marker({
+        position: { lat: pt.lat, lng: pt.lng },
+        map,
+        title: pt.label,
+        label: {
+          text: String(num),
+          color: 'white',
+          fontSize: '12px',
+          fontWeight: '700',
+          fontFamily: 'Inter, sans-serif'
+        },
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: '#1A73E8',
+          fillOpacity: 1,
+          strokeColor: 'white',
+          strokeWeight: 2,
+          scale: 16
+        }
+      });
+      marker.addListener('click', () => {
+        infoWindow.setContent(`<div style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#1C1C1E;padding:2px 4px;">${num}. ${pt.label}</div>`);
+        infoWindow.open(map, marker);
+      });
+      markers.push(marker);
+    });
+
+    // Fit bounds
+    if (points.length > 1) {
+      const bounds = new google.maps.LatLngBounds();
+      points.forEach(p => bounds.extend({ lat: p.lat, lng: p.lng }));
+      map.fitBounds(bounds, { top: 30, right: 30, bottom: 30, left: 30 });
+    }
+
+    // Draw walking route between points
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+      map,
+      suppressMarkers: true,
+      polylineOptions: { strokeColor: '#1A73E8', strokeWeight: 3, strokeOpacity: 0.6 }
+    });
+
+    if (points.length >= 2) {
+      const waypoints = points.slice(1, -1).map(p => ({
+        location: new google.maps.LatLng(p.lat, p.lng),
+        stopover: true
+      }));
+      directionsService.route({
+        origin: new google.maps.LatLng(points[0].lat, points[0].lng),
+        destination: new google.maps.LatLng(points[points.length - 1].lat, points[points.length - 1].lng),
+        waypoints,
+        travelMode: google.maps.TravelMode.WALKING
+      }, (result, status) => {
+        if (status === 'OK') directionsRenderer.setDirections(result);
+      });
+    }
+
+    mapInstances[containerId] = { map, markers, directionsRenderer };
+  });
+}
+
+// Refresh a map when activities change (delete/add)
+function refreshMap(dayNum) {
+  const inlineId = 'map-inline-' + dayNum;
+  const fullId = 'map-full-' + dayNum;
+  [inlineId, fullId].forEach(id => {
+    if (mapInstances[id]) {
+      // Map already exists — clear and rebuild
+      delete mapInstances[id];
+      const el = document.getElementById(id);
+      if (el) { el.innerHTML = ''; buildMap(dayNum, id); }
+    }
+  });
+}
+
+// Expose refresh globally so Firebase state updates can trigger it
+window._refreshMap = refreshMap;
+
+// Handle map toggle clicks (inline maps)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.map-toggle-btn[data-mapday]');
+  if (!btn) return;
+  const dayNum = parseInt(btn.dataset.mapday);
+  const frame = btn.nextElementSibling;
+  const isOpen = frame.classList.toggle('open');
+  btn.querySelector('.map-chevron').textContent = isOpen ? '▴' : '▾';
+  if (isOpen) {
+    const canvasId = 'map-inline-' + dayNum;
+    if (!mapInstances[canvasId]) buildMap(dayNum, canvasId);
+  }
+});
+
+// Build full maps when Carte tab is opened
+document.addEventListener('click', e => {
+  const navBtn = e.target.closest('.nav-btn[data-tab="carte"]');
+  if (!navBtn) return;
+  setTimeout(() => {
+    [1, 2, 3, 4].forEach(d => {
+      const id = 'map-full-' + d;
+      if (!mapInstances[id]) buildMap(d, id);
+    });
+  }, 100);
+});
+</script>
 
 </body>
 </html>
